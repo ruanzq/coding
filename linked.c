@@ -28,18 +28,28 @@ int isEmpty(struct linked *);
 
 // 打印整个链表
 void display(struct linked *);
+
+// 返回索引i处的节点
+struct linked * get(struct linked * head,int i);
+
+// 返回第一個值为v的节点
+struct linked * locate(struct linked *,int v);
 int main(void){
 	struct linked * fp = init();
-	for(int i = 0; i < 100; i++){
+	for(int i = 0; i < 30; i++){
 		insert(fp,i,i);
 	}
 	display(fp);
-	printf("linked length is %d",length(fp));
+	printf("\nlinked length is %d\n",length(fp));
 	del(fp,0);
 	del(fp,0);
 	del(fp,0);
 	del(fp,0);
-	printf("linked length is %d",length(fp));
+	insert(fp,0,666);
+	insert(fp,1,77);
+	printf("\nlinked length is %d\n",length(fp));
+	display(fp);
+	printf("\n %d %d",get(fp,0)->data,get(fp,5)->data);
 	return 0;
 }
 struct linked * init(){
@@ -70,6 +80,7 @@ int insert(struct linked * head,int i,int v){
 	t->data = v;
 	t->next = cur->next;
 	cur->next = t;
+	return 1;
 }
 int del(struct linked  * head,int i){
 	struct linked * cur = head;
@@ -87,4 +98,22 @@ void display(struct linked * head){
 		head = head->next;
 		printf("%d,",head->data);
 	}
+	printf("\n");
+}
+struct linked * get(struct linked *head,int i){
+	int count = 0;
+	while(count <= i && head != NULL){
+		head = head->next;
+		count++;
+	}
+	return head;
+}
+struct linked * locate(struct linked * head,int v){
+	head = head->next;
+	while(head != NULL){
+		if(head->data == v)
+			break;
+		head = head->next;
+	}
+	return head;
 }

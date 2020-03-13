@@ -45,7 +45,7 @@ void foreach(struct linear *);
 int length(struct linear *);
 
 // 判断线性表是否为空
-int empty(struct linear *);
+int isEmpty(struct linear *);
 
 // 判断线性表是否满了
 int isFull(struct linear *);
@@ -85,7 +85,7 @@ struct linear * create(int size){
 	s->lastIndex = -1;
 	return s;
 }
-int empty(struct linear *s){
+int isEmpty(struct linear *s){
 	if(s->lastIndex == -1){
 		return 1;
 	}else{
@@ -128,7 +128,7 @@ int del(struct linear *s,int i){
 			s->fp[i] = s->fp[i+1];
 			i++;
 		}
-		return s->[s->lastIndex--];
+		return s->fp[s->lastIndex--];
 	}
 }
 int length(struct linear *s){
@@ -168,4 +168,18 @@ int in(struct linear *s,int v){
 }
 int out(struct linear *s){
 	return del(s,0);
+}
+int locate(struct linear *s,int v){
+	if(isEmpty(s)){
+	
+	}else{
+		int i = 0;
+		while(i <= s->lastIndex){
+			if(s->fp[i] == v){
+				return i;
+			}
+			i++;
+		}
+		return -1;
+	}
 }
