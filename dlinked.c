@@ -16,10 +16,10 @@ struct linked * init(void);
 int length(struct linked *);
 
 // 索引i处插住值v
-int insert(struct linked *,int i,int v);
+struct linked * insert_node(struct linked *,int i,int v);
 
 // 删除索引i出的节点
-int del(struct linked *,int i);
+int remove_node(struct linked *,int i);
 
 // 返回索引i处的值
 struct linked * get(struct linked *,int i);
@@ -30,14 +30,16 @@ int main(void){
 	struct linked * fp = init();
 	printf("链表长度为： %d\n",length(fp));
 	for(int i = 1;i <10;i++){
-		insert(fp,0,i);
+		insert_node(fp,0,i);
 	}
 	printf("链表长度为： %d\n",length(fp));
-//#	display(fp);
-//#	insert(fp,0,666);
-//#	insert(fp,7,10009);
-//#	printf("链表长度为： %d\n",length(fp));
-//#	display(fp);
+	display(fp);
+	insert_node(fp,8,666);
+	insert_node(fp,10,666);
+	insert_node(fp,0,10009);
+	insert_node(fp,5,9999);
+	printf("链表长度为： %d\n",length(fp));
+	display(fp);
 	return 0;
 }
 
@@ -57,26 +59,26 @@ struct linked * init(void){
 	head->data = 0;
 	return head;
 }
-int insert(struct linked * head,int i,int v){
-	int count = 0;
-	while(count < i){
-		head = head->next;
+struct linked * insert_node(struct linked * head,int i,int value){
+	struct linked * before = get(head,i-1);
+
+	if(before !=NULL){	
+		struct linked * newNode = (struct linked *)malloc(sizeof(struct linked));
+		newNode->data = value;
+		newNode->previous = before;
+		newNode->next = before->next;
+		before->next = newNode;
+		if(newNode->next != NULL){
+			newNode->next->previous = newNode;
+		}
+		return newNode;
 	}
-	struct linked * newNode = (struct linked *)malloc(sizeof(struct linked));
-	newNode->data = v;
-	newNode->previous = head;
-	newNode->next = head->next;
-	head->next = newNode;
-	if(newNode->next != NULL){
-		newNode->next->previous = newNode;
-	}
-	return 0;
+	return NULL;
 }
-int del(struct linked * head,int i){
+int remove_node(struct linked * head,int i){
 	struct linked * cur = get(head,i);
 	if(cur == NULL){
-		printf("fun:del --- out of ranged");
-		return 1;
+		return -1;
 	}else{
 		cur->previous->next = cur->next;
 		if( cur->next != NULL){
@@ -94,11 +96,9 @@ struct linked * get(struct linked * head,int i){
 	return head;
 }
 void display(struct linked *head){
-	printf("come in ");
-	head = head->next;
-	while(head != NULL){
-		printf("%d,",head->data);
+	while(head->next != NULL){
 		head = head->next;
+		printf("%d,",head->data);
 	}
-
+	printf("\n");
 }

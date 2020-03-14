@@ -14,14 +14,17 @@ struct linked{
 // 返回链表长度
 int length(struct linked *);
 
-// 创建一个链表
+// 创建一个链表,返回表头
 struct linked * init(void);
 
-// 向索引i处插入一个值v
-int insert(struct linked *,int i,int v);
+// 向索引i处插入一个值value，返回新插入的节点或NULL
+struct linked * insert_node(struct linked *,int i,int value);
 
-// 删除索引i处的值
-int del(struct linked *,int i);
+// 已存在的节点s后插入值value，返回新插入的节点或NULL
+struct linked * insert(struct linked *s,int value);
+
+// 删除索引i处的节点
+int remove_node(struct linked *,int i);
 
 // 判断链表是否为空
 int isEmpty(struct linked *);
@@ -29,7 +32,7 @@ int isEmpty(struct linked *);
 // 打印整个链表
 void display(struct linked *);
 
-// 返回索引i处的节点
+// 返回索引i处的节点，超过索引则返回NULL
 struct linked * get(struct linked * head,int i);
 
 // 返回第一個值为v的节点
@@ -37,29 +40,34 @@ struct linked * locate(struct linked *,int v);
 int main(void){
 	struct linked * fp = init();
 	for(int i = 0; i < 30; i++){
-		insert(fp,i,i);
+		insert_node(fp,i,i);
 	}
 	display(fp);
 	printf("\nlinked length is %d\n",length(fp));
-	del(fp,0);
-	del(fp,0);
-	del(fp,0);
-	del(fp,0);
-	insert(fp,0,666);
-	insert(fp,1,77);
+	remove_node(fp,29);
+	remove_node(fp,10);
+	remove_node(fp,0);
 	printf("\nlinked length is %d\n",length(fp));
 	display(fp);
-	printf("\n %d %d",get(fp,0)->data,get(fp,5)->data);
+	insert_node(fp,26,5);
+	insert_node(fp,28,4);
+	insert_node(fp,5,3);
+	insert_node(fp,0,2);
+	printf("\nlinked length is %d\n",length(fp));
+	display(fp);
 	return 0;
 }
+
 struct linked * init(){
 	struct linked * p = (struct linked *)malloc(sizeof(struct linked));
 	p->next = NULL;
 	return p;
 }
-int isEmpty(struct linked * s){
-	return s->next == NULL;
+
+int isEmpty(struct linked * head){
+	return head->next == NULL;
 }
+
 int length(struct linked * head){
 	struct linked * cur = head->next;
 	int count = 0;
@@ -69,30 +77,37 @@ int length(struct linked * head){
 	}
 	return count;
 }
-int insert(struct linked * head,int i,int v){
-	struct linked * cur = head;
-	int count = 0;
-	while(count != i){
-		cur = cur->next;
-		count++;
+
+struct linked * insert_node(struct linked * head,int i,int value){
+	struct linked * cur = get(head,i-1);
+	if(cur == NULL){
+		return NULL;
 	}
+	return insert(cur,value);
+}
+
+struct linked * insert(struct linked *s,int value){
 	struct linked * t = (struct linked *)malloc(sizeof(struct linked));
-	t->data = v;
-	t->next = cur->next;
-	cur->next = t;
-	return 1;
+	t->data = value;
+	t->next = s->next;
+	s->next = t;
+	return t;
 }
-int del(struct linked  * head,int i){
-	struct linked * cur = head;
-	int count = 0;
-	while(count != i){
-		cur = cur->next;
-		count++;
+
+int remove_node(struct linked  * head,int i){
+	struct linked * cur = get(head,i-1);
+
+	if( cur != NULL){
+		if(cur->next != NULL){
+			struct linked * t = cur->next;
+			cur->next = t->next;
+			free(t);
+			return 0;
+		}
 	}
-	struct linked * t = cur->next;
-	cur->next = t->next;
-	free(t);
+	return -1;
 }
+
 void display(struct linked * head){
 	while(head->next != NULL){
 		head = head->next;
@@ -102,12 +117,13 @@ void display(struct linked * head){
 }
 struct linked * get(struct linked *head,int i){
 	int count = 0;
-	while(count <= i && head != NULL){
+	while(count <= i && head->next != NULL){
 		head = head->next;
 		count++;
 	}
 	return head;
 }
+
 struct linked * locate(struct linked * head,int v){
 	head = head->next;
 	while(head != NULL){

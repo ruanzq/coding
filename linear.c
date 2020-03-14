@@ -21,25 +21,28 @@ struct linear{
 	int lastIndex;
 };
 // 向索引i插入一个值v，返回插入后的线性表长度
-int insert(struct linear *,int i,int v);
+int insert_element(struct linear *,int i,int v);
 
 // 删除位于索引i的值，并将其作为返回值
-int del(struct linear *,int i);
+int remove_element(struct linear *,int i);
 
 // 清空线性表
-void clear(struct linear *);
+void clear_elements(struct linear *);
 
 // 返回索引i处的值
-int get(struct linear *,int i);
+int get_elements(struct linear *,int i);
 
 // 返回第一次找到value的索引
-int locate(struct linear *,int value);
+int find_value(struct linear *,int value);
 
 // 生成一个线性表
-struct linear * create(int size);
+struct linear * init(int size);
 
 // 遍历打印线性表的值
-void foreach(struct linear *);
+void display(struct linear *);
+
+//  输出线性表的使用情况
+void total(struct linear *);
 
 // 返回线性表的长度
 int length(struct linear *);
@@ -64,122 +67,121 @@ int in(struct linear *,int v);
 // 出队，返回出队的元素
 int out(struct linear *);
 int main(void){
-	struct linear * l = create(100);
-	for(int i = 0;i<100;i++){
-		insert(l,i,i);
+	struct linear * p = init(50);
+	total(p);
+	for(int i = 0;i < 10;i++){
+		insert_element(p,i,i);
 	}
-	foreach(l);
-	in(l,10000);
-	printf("\n%d\n",out(l));
-	printf("%d\n",out(l));
-	printf("%d\n",out(l));
-	printf("%d\n",out(l));
-	printf("%d\n",out(l));
-	foreach(l);
+	total(p);
+	display(p);
+	remove_element(p,0);
+	remove_element(p,6);
+	remove_element(p,3);
+	remove_element(p,p->lastIndex);
+	total(p);
+	display(p);
+	insert_element(p,0,666);
+	insert_element(p,p->lastIndex,666);
+	insert_element(p,p->lastIndex+1,111666);
+	insert_element(p,p->lastIndex+1+321321,111666);
+	total(p);
+	display(p);
 	return 0;
 }
-struct linear * create(int size){
-	struct linear * s =(struct linear *)malloc(sizeof(struct linear));
+struct linear * init(int size){
+	struct linear * s = (struct linear *)malloc(sizeof(struct linear));
 	s->fp = (int *)malloc(sizeof(int)*size);
 	s->size = size;
 	s->lastIndex = -1;
 	return s;
 }
-int isEmpty(struct linear *s){
+int isEmpty(struct linear * s){
 	if(s->lastIndex == -1){
 		return 1;
 	}else{
 		return 0;
 	}
 }
-int isFull(struct linear *s){
+int isFull(struct linear * s){
 	if(s->lastIndex+1 == s->size){
 		return 1;
 	}else{
 		return 0;
 	}
 }
-void foreach(struct linear *s){
+void display(struct linear * s){
 	for(int i = 0;i <= s->lastIndex;i++){
 		printf("%d,",s->fp[i]);
 	}
 	printf("\n");
 }
-int insert(struct linear *s,int i,int v){
-	if(i < 0 || i > s->lastIndex+1 || s->lastIndex+1 >= s->size ){
-		printf("out of range %d %d\n",i,s->lastIndex);
-		return -1;
-	}else{
-		int t = s->lastIndex;
-		while(t>=i){
+void total(struct linear *s){
+	float value = (float)(s->lastIndex + 1)/(float)s->size;
+	value = value*100.0;
+	printf("已经使用： %d\%\n",(int)value);
+}
+
+int insert_element(struct linear *s,int i,int value){
+	if(i >= 0 && i<=s->lastIndex + 1 && !isFull(s) ){
+		for(int t = s->lastIndex; t >= i; t--)
 			s->fp[t+1] = s->fp[t];
-			t--;
-		}
-		s->fp[t+1] = v;	
+		s->fp[i] = value;
 		s->lastIndex++;
 	}
+	return s->lastIndex + 1;
 }
-int del(struct linear *s,int i){
-	if(i < 0 || i > s->lastIndex){
-		printf("out of range");
-		return -1;
-	}else{
-		while(i < s->lastIndex){
+int remove_element(struct linear *s,int i){
+	if(i >= 0 && i <= s->lastIndex){
+		for( ;i < s->lastIndex; i++){
 			s->fp[i] = s->fp[i+1];
-			i++;
-		}
-		return s->fp[s->lastIndex--];
+		}	
+		s->lastIndex--;
 	}
+	return s->lastIndex + 1;
+	
 }
 int length(struct linear *s){
 	return s->lastIndex+1;
 }
-void clear(struct linear *s){
+void clear_elements(struct linear *s){
 	s->lastIndex = -1;
 }
-int get(struct linear *s,int i){
+int get_elements(struct linear *s,int i){
 	if(i < 0 || i > s->lastIndex){
 		printf("fun:get --- out of range");
 	}else{
 		return s->fp[i];
 	}
 }
-
-int pop(struct linear *s){
-	if(s->lastIndex == -1){
-		printf("fun:pop --- out of range");
+int find_value(struct linear * s,int value){
+	int index = -1;
+	for( int i = 0;i <= s->lastIndex;i++ ){
+		if( s->fp[i] == value ){
+			index = i;
+			break;
+		}
+	}
+	return index;
+}
+int pop(struct linear * s){
+	if(isEmpty(s)){
 		return -1;
 	}else{
-		int t = s->fp[s->lastIndex];
-		s->lastIndex--;
-		return t;
+		remove_element(s,s->lastIndex);
+		return 0;
 	}
 }
-int push(struct linear *s,int v){
+int push(struct linear *s,int value){
 	if(isFull(s)){
-		printf("fun:push --- linear is fulled");
+		return -1;
 	}else{
-		s->fp[++s->lastIndex] = v;
-		return length(s);
+		insert_element(s,s->lastIndex + 1,value);
+		return 0;
 	}
 }
 int in(struct linear *s,int v){
 	return push(s,v);
 }
 int out(struct linear *s){
-	return del(s,0);
-}
-int locate(struct linear *s,int v){
-	if(isEmpty(s)){
-	
-	}else{
-		int i = 0;
-		while(i <= s->lastIndex){
-			if(s->fp[i] == v){
-				return i;
-			}
-			i++;
-		}
-		return -1;
-	}
+	return remove_element(s,0);
 }
