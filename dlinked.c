@@ -1,102 +1,123 @@
-/*
- * 双向链表的设计与实现
-*/
-#include<stdio.h>
-#include<stdlib.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-struct linked{
-	struct linked * previous;
-	struct linked * next;
+typedef struct nodes{
+	struct nodes * next;
+	struct nodes * pre;
 	int data;
-};
-// 初始化一个新的双向链表，返回头结点
-struct linked * init(void);
+}node;
 
-// 返回双向链表的长度
-int length(struct linked *);
+int count(node * head);
 
-// 索引i处插住值v
-struct linked * insert_node(struct linked *,int i,int v);
+node * create_node(int value);
 
-// 删除索引i出的节点
-int remove_node(struct linked *,int i);
+node * get(node * head,int index);
 
-// 返回索引i处的值
-struct linked * get(struct linked *,int i);
+node * find(node * head,int value);
 
-// 打印链表的所有值
-void display(struct linked * head);
+int insert(node * head,int index,int value);
+
+int removes(node * head,int index);
+
+void display(node * head);
+
 int main(void){
-	struct linked * fp = init();
-	printf("链表长度为： %d\n",length(fp));
-	for(int i = 1;i <10;i++){
-		insert_node(fp,0,i);
+	node * head = create_node(0);
+	printf("insert status %d\n",insert(head,0,1));
+	printf("insert status %d\n",insert(head,-1,2));
+	printf("insert status %d\n",insert(head,-20,3));
+	printf("insert status %d\n",insert(head,count(head)-1,4));
+	printf("insert status %d\n",insert(head,count(head),5));
+	printf("insert status %d\n",insert(head,count(head)+1,6));
+	printf("insert status %d\n",insert(head,30,9999));
+	printf("insert status %d\n",insert(head,count(head)+2,7));
+	for(int i = 0; i<5 ; i++){
+		insert(head,count(head),i+10);
 	}
-	printf("链表长度为： %d\n",length(fp));
-	display(fp);
-	insert_node(fp,8,666);
-	insert_node(fp,10,666);
-	insert_node(fp,0,10009);
-	insert_node(fp,5,9999);
-	printf("链表长度为： %d\n",length(fp));
-	display(fp);
+	display(head);
+	printf("removes status %d\n",removes(head,0));
+	printf("removes status %d\n",removes(head,-1));
+	printf("removes status %d\n",removes(head,-20));
+	printf("removes status %d\n",removes(head,count(head)-1));
+	printf("removes status %d\n",removes(head,count(head)+1));
+	printf("removes status %d\n",removes(head,30));
+	printf("removes status %d\n",removes(head,count(head)));
+	display(head);
 	return 0;
 }
-
-int length(struct linked * head){
-	int count = 0;
-	struct linked * cur = head->next;
-	while(cur != NULL){
-		cur = cur->next;
-		count++;
-	}
-	return count;
-}
-struct linked * init(void){
-	struct linked * head = (struct linked *)malloc(sizeof(struct linked));
-	head->previous = NULL;
-	head->next = NULL;
-	head->data = 0;
-	return head;
-}
-struct linked * insert_node(struct linked * head,int i,int value){
-	struct linked * before = get(head,i-1);
-
-	if(before !=NULL){	
-		struct linked * newNode = (struct linked *)malloc(sizeof(struct linked));
-		newNode->data = value;
-		newNode->previous = before;
-		newNode->next = before->next;
-		before->next = newNode;
-		if(newNode->next != NULL){
-			newNode->next->previous = newNode;
-		}
-		return newNode;
-	}
-	return NULL;
-}
-int remove_node(struct linked * head,int i){
-	struct linked * cur = get(head,i);
-	if(cur == NULL){
-		return -1;
-	}else{
-		cur->previous->next = cur->next;
-		if( cur->next != NULL){
-			cur->next->previous = cur->previous;
-		}
-		free(cur);
-	}
-}
-struct linked * get(struct linked * head,int i){
-	int count = 0;
-	while(count <= i){
+int count(node * head){
+	int i = 0;
+	for(;head->next;i++)
 		head = head->next;
-		count++;
-	}
-	return head;
+	return i;
 }
-void display(struct linked *head){
-	while(head->next != NULL){
+
+node * create_node(int value){
+	node * newNode = (node *)malloc(sizeof(newNode));
+	newNode->next = NULL;
+	newNode->pre = NULL;
+	newNode->data = value;
+	return newNode;
+}
+
+node * get(node * head,int index){
+	node * result = NULL;
+	for(int count = -1;count <= index && head != NULL;count++){
+		if(count == index){
+			result = head;
+			break;
+		}
+		head = head->next;
+	}
+	return result;
+}
+
+node * find(node * head,int value){
+	node * result = NULL;
+	while(head->next){
+		head = head->next;
+		if(head->data == value){
+			result = head;
+			break;
+		}
+	}
+	return result;
+}
+
+int insert(node * head,int index,int value){
+	int  status = -1;
+	node * before = get(head,index-1);
+	node * newNode = create_node(value);
+
+	if(before && newNode){
+		newNode->next = before->next;
+		newNode->pre = before;
+		before->next = newNode;
+		if(newNode->next){
+			newNode->next->pre = newNode;
+		}
+		status = 0;
+	}
+	return status;	
+}
+
+int removes(node * head,int index){
+	node * before = get(head,index-1);
+	int status = -1;
+	if( before && before->next ){
+		node * t = before->next;
+		before->next = t->next;
+		if( t->next ){
+			t->next->pre = before;
+		}
+		free(t);
+		status = 0;
+	}
+	return status;
+}
+
+void display(node * head){
+	while(head->next){
 		head = head->next;
 		printf("%d,",head->data);
 	}
