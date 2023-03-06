@@ -99,6 +99,7 @@ list * rm(list * head,int index){
 		cur = before->tail;
 		before->tail = cur->tail;
 		head->value--;
+		free(cur)
 	}
 	return cur;
 }
